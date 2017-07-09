@@ -134,9 +134,10 @@ $(document).ready(function () {
 <div id="set-the-work-directory" class="section level1">
 <h1>Set the work directory</h1>
 </div>
-<div id="load-data-and-perform-basic-exploratory-data-analysis" class="section level1">
-<h1>Load data and perform basic exploratory data analysis</h1>
-<pre class="r"><code>Trainurl &lt;- 'https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv'
+<div id="load-data-and-get-data" class="section level1">
+<h1>Load data and get data</h1>
+<pre class="r"><code># Load data
+Trainurl &lt;- 'https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv'
 Testurl  &lt;- 'https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv'
 if (!file.exists(&quot;data&quot;)) dir.create(&quot;data&quot;)
 if (!file.exists(&quot;pml-training.csv&quot;)) download.file(Trainurl, destfile1 =&quot;data/pml-training.csv&quot;, mode=&quot;wb&quot;)
@@ -160,8 +161,13 @@ library(dplyr)</code></pre>
 <pre><code>## The following objects are masked from 'package:dplyr':
 ## 
 ##     between, first, last</code></pre>
-<pre class="r"><code>training &lt;-read.csv(&quot;pml-training.csv&quot;,header=TRUE, sep=&quot;,&quot;, na.strings=c(&quot;NA&quot;,&quot;&quot;, &quot;#DIV/0!&quot;))
+<pre class="r"><code># Read data
+
+training &lt;-read.csv(&quot;pml-training.csv&quot;,header=TRUE, sep=&quot;,&quot;, na.strings=c(&quot;NA&quot;,&quot;&quot;, &quot;#DIV/0!&quot;))
 testingVal &lt;-read.csv(&quot;pml-testing.csv&quot;,header=TRUE, sep=&quot;,&quot;, na.strings = c(&quot;NA&quot;,&quot;&quot;, &quot;#DIV/0!&quot;))</code></pre>
+</div>
+<div id="perform-basic-exploratory-data-analysis" class="section level1">
+<h1>Perform basic exploratory data analysis</h1>
 <pre class="r"><code># Structure of the dataset
 # str(training)
 ## 'data.frame':    19622 obs. of  160 variables
@@ -197,6 +203,9 @@ plot(training$user_name, training$classe, xlab=&quot;Classe activity by particip
 # which(colnames(testingVal)==&quot;classe&quot;)
 # Testing does not contain classe named column
 # View(testingVal)</code></pre>
+</div>
+<div id="basic-preprocessing" class="section level1">
+<h1>Basic Preprocessing</h1>
 <pre class="r"><code># Math functions as mean, sd, max, colSums...all take the na.rm argument, TRUE ie missing values are omitted
 # see &lt;http://faculty.nps.edu/sebuttre/home/R/missings.html&gt;
 
@@ -213,7 +222,10 @@ testingVal &lt;- testingVal[, colSums(is.na(testingVal)) == 0]
 </div>
 <div id="steps-by-steps-to-predict-the-manner-in-which-the-participants-did-the-exercise" class="section level1">
 <h1>Steps by Steps to predict the manner in which the participants did the exercise</h1>
-<pre class="r"><code>library(caret)</code></pre>
+<div id="analysis-steps-in-traintest-and-validation-datasets" class="section level2">
+<h2>Analysis steps in train/test and validation datasets</h2>
+<pre class="r"><code># Training dataset
+library(caret)</code></pre>
 <pre><code>## Loading required package: lattice</code></pre>
 <pre><code>## Loading required package: ggplot2</code></pre>
 <pre class="r"><code>set.seed(2433)
@@ -231,7 +243,7 @@ testing &lt;- training[-inTrain, ]
 # dim(testing)
 ## [1] 4141   60
 
-# The effect of all the variables on the outcome classe with the choice of the method  randomforest as it knowns to be more accuracy. Furthermore, it's usually one of the two top performing algorithms along with boosting in prediction contests
+# The effect of all the variables on the outcome classe with : the choice of the method  randomforest as it knowns to be more accuracy and usually one of the two top performing algorithms along with boosting in prediction contexts
 library(randomForest)</code></pre>
 <pre><code>## randomForest 4.6-12</code></pre>
 <pre><code>## Type rfNews() to see new features/changes/bug fixes.</code></pre>
@@ -376,7 +388,7 @@ confusionMatrix(pred_RF, training$classe)</code></pre>
 ## Balanced Accuracy      1.0000   1.0000   1.0000   1.0000   1.0000</code></pre>
 <pre class="r"><code># Result with adding parameters : The method RandomForest still has an accuracy nearly about 100% on the confidence interval of 95%
 
-# PREDICTION ON TESTING DATA SET : Accuracy of the model on testing data set? 
+# PREDICTION ON TESTING DATASET : Accuracy of the model on testing data set? 
 
 pred_testRF &lt;- predict(modelfinalRf, testing)
 #confusionMatrix(pred_testRF, testing$classe)
@@ -428,7 +440,9 @@ library(ggplot2)
 
 qplot(pred_testRF, color=classe, data=testing, main='Testing data Prediction')</code></pre>
 <p><img src="data:image/png;base64,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" /><!-- --></p>
-<pre class="r"><code># VALIDATION PART: Apply the machine learning algorithm to the 20 test cases 
+<pre class="r"><code># The classe A is the most highest one among 5 activities
+
+# VALIDATION PART: Apply the machine learning algorithm to the 20 test cases 
 
 
 validation &lt;-testingVal
@@ -446,6 +460,7 @@ pred_validRF &lt;- predict(modelfinalRf,validation)
 pred_validRF &lt;- as.numeric(pred_validRF)
 # sqrt(sum(pred_validRF-60)^2)  --minus the column named classe (training data set)
 ## [1] 1180</code></pre>
+</div>
 </div>
 <div id="conclusion" class="section level1">
 <h1>Conclusion</h1>

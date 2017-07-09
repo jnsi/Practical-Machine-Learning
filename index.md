@@ -14,9 +14,11 @@ One thing that people regularly do is quantify how much of a particular activity
 
 
 
-# Load data and perform basic exploratory data analysis
+# Load data and get data
+
 
 ```r
+# Load data
 Trainurl <- 'https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv'
 Testurl  <- 'https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv'
 if (!file.exists("data")) dir.create("data")
@@ -71,9 +73,13 @@ library(data.table)
 ```
 
 ```r
+# Read data
+
 training <-read.csv("pml-training.csv",header=TRUE, sep=",", na.strings=c("NA","", "#DIV/0!"))
 testingVal <-read.csv("pml-testing.csv",header=TRUE, sep=",", na.strings = c("NA","", "#DIV/0!"))
 ```
+
+# Perform basic exploratory data analysis
 
 ```r
 # Structure of the dataset
@@ -130,7 +136,7 @@ table(training$user_name, training$classe)
 plot(training$user_name, training$classe, xlab="Classe activity by participant")
 ```
 
-![](index_files/figure-html/basic exploratory data analysis-1.png)<!-- -->
+![](index_files/figure-html/Classe_activity_by_participant_histogram-1.png)<!-- -->
 
 ```r
 #str(testingVal)
@@ -140,6 +146,7 @@ plot(training$user_name, training$classe, xlab="Classe activity by participant")
 # Testing does not contain classe named column
 # View(testingVal)
 ```
+# Basic Preprocessing
 
 ```r
 # Math functions as mean, sd, max, colSums...all take the na.rm argument, TRUE ie missing values are omitted
@@ -157,9 +164,11 @@ testingVal <- testingVal[, colSums(is.na(testingVal)) == 0]
 # New data set with only 20 observations and 60 variables instead of 20 observations and 160 variables
 ```
 # Steps by Steps to predict the manner in which the participants did the exercise   
+## Analysis steps in train/test and validation datasets
 
 
 ```r
+# Training dataset
 library(caret)
 ```
 
@@ -187,7 +196,7 @@ testing <- training[-inTrain, ]
 # dim(testing)
 ## [1] 4141   60
 
-# The effect of all the variables on the outcome classe with the choice of the method  randomforest as it knowns to be more accuracy. Furthermore, it's usually one of the two top performing algorithms along with boosting in prediction contests
+# The effect of all the variables on the outcome classe with : the choice of the method  randomforest as it knowns to be more accuracy and usually one of the two top performing algorithms along with boosting in prediction contexts
 library(randomForest)
 ```
 
@@ -371,7 +380,7 @@ confusionMatrix(pred_RF, training$classe)
 ```r
 # Result with adding parameters : The method RandomForest still has an accuracy nearly about 100% on the confidence interval of 95%
 
-# PREDICTION ON TESTING DATA SET : Accuracy of the model on testing data set? 
+# PREDICTION ON TESTING DATASET : Accuracy of the model on testing data set? 
 
 pred_testRF <- predict(modelfinalRf, testing)
 #confusionMatrix(pred_testRF, testing$classe)
@@ -424,9 +433,11 @@ library(ggplot2)
 qplot(pred_testRF, color=classe, data=testing, main='Testing data Prediction')
 ```
 
-![](index_files/figure-html/Analysis steps, test and validation-1.png)<!-- -->
+![](index_files/figure-html/Testing_Data_Prediction_Plot-1.png)<!-- -->
 
 ```r
+# The classe A is the most highest one among 5 activities
+
 # VALIDATION PART: Apply the machine learning algorithm to the 20 test cases 
 
 
